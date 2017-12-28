@@ -1,8 +1,11 @@
 'use strict';
 
 module.exports = (() => {
+    const fs = require('fs');
     const request = require('request');
-
+    const parser = require('./parser');
+    const path = require("path");
+    
 
     class WargamingApi {
         static get baseUrls() {
@@ -15,25 +18,11 @@ module.exports = (() => {
             this.appId = appId;
         }
 
-        getTld(server) {
-            switch (server.toUpperCase()) {
-                case 'NA':
-                    return 'com';
-                case 'EU':
-                    return 'eu';
-                case 'RU':
-                    return 'ru'
-                case 'ASIA':
-                case 'SEA':
-                    return 'asia';
-                default:
-                    return null;
-            }
-        }
+        
 
-        getShipsPlayers (search, server) {
+        searchShipsPlayers (search, server) {
             return new Promise((resolve, reject) => {
-                let tld = this.getTld(server);
+                let tld = parser.getTld(server);
                 if (!tld) return reject(new Error('Invalid server.'));
 
                 request.post(
@@ -53,15 +42,17 @@ module.exports = (() => {
                         return resolve(parsed.data);        // return the list only, we don't need meta (number of possible matches) for now
                     }
                 )
-            })
+            });
         }
 
         getMatchingPlayer (search, server) {
             return new Promise((resolve, reject) => {
                 let match;
 
-                this.getShipsPlayers(search, server)
+                this.searchShipsPlayers(search, server)
                 .then((players) => {
+                    console.log('found some players hopefully')
+                    console.log(players)
                     for (let i = 0; i < players.length; i++) {
                         let currentPlayer = players[i];
 
@@ -71,18 +62,18 @@ module.exports = (() => {
                         }
                     }
 
+                    console.log('match')
+                    console.log(match)
+
                     if (!match) {
-                        return reject(new Error('No matching player was found.'));
+                        return reject(new Error('Player not found.'));
                     }
 
                     return resolve(match);
                 });
             });
         }
-
-        
-
     }
-
+    
     return WargamingApi;
 })()

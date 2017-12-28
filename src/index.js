@@ -12,11 +12,14 @@ const WargamingApi = require('./includes/wg-api');
 
 let secrets = JSON.parse(fs.readFileSync('./secrets.json'));
 let discordToken = secrets.discord;
-let wgToken = secrets.wargaming;
+let wgAppId = secrets.wargaming;
 
 // Create an instance of a Discord client
 const client = new Discord.Client();
-const wg = new WargamingApi(wgToken);
+const StatsBotClass = require('./includes/main')
+
+let statsbot = new StatsBotClass(wgAppId);
+
 
 // The ready event is vital, it means that your bot will only start reacting to information
 // from Discord _after_ ready is emitted
@@ -36,23 +39,8 @@ client.on('message', message => {
         return;
     }
     else {
-        let success;
-
-        if (parser.botCalled(message.content)) {
-            let args = parser.getArgs(message.content);
-            
-            if (!args) success = false; // exit and reply here or something
-            else {
-                wg.getMatchingPlayer(args.player, args.server)
-                .then((match) => {
-                    message.channel.send(JSON.stringify(match));
-                    return;
-                })
-                .catch((err) => {
-                    message.channel.send('Player ' + args.player + ' on ' + args.server + ' not found.');
-                });
-            }
-        }
+        console.log('was not bing');
+        statsbot.handleMessage(message);
 
     }
 });
