@@ -54,7 +54,7 @@ module.exports = (() => {
                         profileUrl += subdomain + '.';
                     }
 
-                    profileUrl += selectedService.domainName;   // includes trailing slash
+                    profileUrl += selectedService.domainName + 'player/';   // includes trailing slash
                     profileUrl += player.account_id + ',' + player.nickname + '/';
                     
                     return profileUrl;
