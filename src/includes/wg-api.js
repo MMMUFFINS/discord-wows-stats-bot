@@ -8,9 +8,13 @@ module.exports = (() => {
 
 
     class WargamingApi {
+        constructor(appId) {
+            this.appId = appId;
+        }
+
         static get baseUrls() {
             return {
-                warships: 'https://api.worldofwarships.'    // add the tld dynamically later,
+                warships: 'https://api.worldofwarships.'    // add the tld dynamically later
                 
             }
         }
@@ -25,14 +29,10 @@ module.exports = (() => {
             }
         }
     
-        constructor(appId) {
-            this.appId = appId;
-        }
-
         searchShipsPlayers(search, normalizedServer) {
             return this.apiCall({
                 normalizedServer: normalizedServer,
-                endpoint: '/account/list',
+                endpoint: '/account/list/',
                 body: {
                     search: search
                 }
@@ -97,7 +97,7 @@ module.exports = (() => {
                 }
 
                 let requestOptions = {
-                    url: WargamingApi.baseUrls.warships + tld + '/wows' + options.endpoint + '/',
+                    url: WargamingApi.baseUrls.warships + tld + '/wows' + options.endpoint,
                     headers: {
                         'Content-Type': 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8'
                     },
@@ -107,27 +107,25 @@ module.exports = (() => {
                 console.log('sending wg api call');
                 console.log(requestOptions);
 
-                request.post(requestOptions,
-                    (err, response, body) => {
-                        let parsed = JSON.parse(body);
-                        console.log('got response');
-                        console.log(parsed);
+                request.post(requestOptions, (err, response, body) => {
+                    let parsed = JSON.parse(body);
+                    console.log('got response');
+                    console.log(parsed);
 
-                        if (err || parsed.status !== 'ok') {  // wargaming sends all errors as 200 REEEEEEEEEEEEEEEEEEE
-                            let errType = parsed.error.message;
+                    if (err || parsed.status !== 'ok') {  // wargaming sends all errors as 200 REEEEEEEEEEEEEEEEEEE
+                        let errType = parsed.error.message;
 
-                            return reject(new Error(WargamingApi.errorMessages(
-                                errType, 
-                                options,
-                                options.normalizedServer
-                            )));
-                        }
-                        else {
-                            console.log('got player data');
-                            return resolve(parsed);
-                        }
+                        return reject(new Error(WargamingApi.errorMessages(
+                            errType, 
+                            options,
+                            options.normalizedServer
+                        )));
                     }
-                );
+                    else {
+                        console.log('got player data');
+                        return resolve(parsed);
+                    }
+                });
             })
             .then((response) => {
                 return Promise.resolve(response);
