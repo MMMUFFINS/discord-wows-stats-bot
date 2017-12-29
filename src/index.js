@@ -33,13 +33,12 @@ client.on('message', message => {
     if (message.author.bot) return;
     
     // If the message is "ping"
-    if (message.content === 'bing') {
+    if (message.content === 'hi statsbot!') {
         // Send "pong" to the same channel
-        message.channel.send('bong');
+        message.channel.send('Hello!');
         return;
     }
     else {
-        console.log('was not bing');
         statsbot.handleMessage(message)
         .then((reply) => {
             message.channel.send(reply);
