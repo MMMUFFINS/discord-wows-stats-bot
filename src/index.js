@@ -40,8 +40,15 @@ client.on('message', message => {
     }
     else {
         console.log('was not bing');
-        statsbot.handleMessage(message);
-
+        statsbot.handleMessage(message)
+        .then((reply) => {
+            message.channel.send(reply);
+        })
+        .catch((errObj) => {
+            if (errObj.willReply) {
+                message.channel.send(errObj.message);
+            }
+        });
     }
 });
 

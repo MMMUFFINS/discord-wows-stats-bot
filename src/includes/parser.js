@@ -35,14 +35,13 @@ module.exports = (() => {
             if (!match) return null;
 
             return {
-                playerName: match[1],
+                nickname: match[1],
                 server: match[2]
             }
         }
 
-        getTld(server) {
-            let normalized = this.normalizeServer(server);
-            switch (normalized) {
+        getTld(normalizedServer) {
+            switch (normalizedServer.toUpperCase()) {
                 case 'NA':
                     return 'com';
                 case 'EU':
@@ -58,17 +57,19 @@ module.exports = (() => {
         }
 
         normalizeServer (server) {
-            switch (server.toUpperCase()) {
-                case 'NA':
-                case 'EU':
-                case 'RU':
-                case 'ASIA':
-                    return server.toUpperCase();
-                case 'SEA':
-                    return 'ASIA';
-                default:
-                    return null;
-            }
+            return new Promise((resolve, reject) => {
+                switch (server.toUpperCase()) {
+                    case 'NA':
+                    case 'EU':
+                    case 'RU':
+                    case 'ASIA':
+                        return resolve(server.toUpperCase());
+                    case 'SEA':
+                        return 'ASIA';
+                    default:
+                        return reject(new Error('Unrecognized server "' + server +'"'));
+                }
+            });
         }
     }
 

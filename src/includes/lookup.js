@@ -19,11 +19,8 @@ module.exports = (() => {
             }
         }
 
-        getImgUrl (player, server, service) {
+        getImgUrl (player, normalizedServer, service) {
             console.log('getimgurl')
-            let normalizedServer = parser.normalizeServer(server);
-            console.log(normalizedServer)
-            if (!normalizedServer) return null;
 
             let imgUrl;
             switch (service) {
@@ -38,10 +35,7 @@ module.exports = (() => {
             }
         }
 
-        getProfileUrl (player, server, service) {
-            let normalizedServer = parser.normalizeServer(server);
-            if (!normalizedServer) return null;
-
+        getProfileUrl (player, normalizedServer, service) {
             let profileUrl;
             switch (service) {
                 case 'wows-numbers':
@@ -65,26 +59,25 @@ module.exports = (() => {
             }
         }
 
-        getStatsUrls (match, args) {
+        getStatsUrls (match, normalizedServer) {
             // TODO: use args.service to select website
             return new Promise((resolve, reject) => {
                 console.log('get stats urls')
-                console.log({match: match, args: args})
-                let imgUrl = this.getImgUrl(match, args.server, 'wows-numbers');
-                let profileUrl = this.getProfileUrl(match, args.server, 'wows-numbers');
+                console.log({match: match, normalizedServer: normalizedServer})
+                let imgUrl = this.getImgUrl(match, normalizedServer, 'wows-numbers');
+                let profileUrl = this.getProfileUrl(match, normalizedServer, 'wows-numbers');
+
+                let output = {
+                    imgUrl: imgUrl,
+                    profileUrl: profileUrl
+                };
 
                 if (!imgUrl && !profileUrl) {
-                    return reject(new Error('Could not look up stats for ' + args.player.nickname))
+                    return reject(new Error('Could not look up stats for ' + match.nickname))
                 }
-
-                return resolve({
-                    img: imgUrl,
-                    profile: profileUrl
-                })
-            })
-            
                 
-            
+                else return resolve(output);
+            });
         }
     }
 
