@@ -20,7 +20,7 @@ module.exports = (() => {
         }
 
         checkHelpMode (text) {
-            let regex = new RegExp('^' + StatsBotMsgParser.args.keyword + ' help', 'i');
+            let regex = new RegExp('^' + StatsBotMsgParser.args.keyword + '$', 'i');
             
             if (text.search(regex) === 0) return true;
             return false;
