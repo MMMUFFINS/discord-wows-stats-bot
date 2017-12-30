@@ -65,7 +65,7 @@ module.exports = (() => {
                     case 'ASIA':
                         return resolve(server.toUpperCase());
                     case 'SEA':
-                        return 'ASIA';
+                        return resolve('ASIA');
                     default:
                         return reject(new Error('Unrecognized server "' + server +'"'));
                 }
