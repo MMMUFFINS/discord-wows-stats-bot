@@ -9,10 +9,15 @@ module.exports = (() => {
     class WarshipsStatsBot {
         static get messages() {
             return {
-                intro:  'Hi! I\'m the Statsbot! **autism intensifies**',
-                usage:  'USAGE: \n'
-                    +   '`!stats <nickname> <NA|EU|SEA|RU>`\n'
-                    +   'eg. `!stats vonEtienne EU`',
+                intro:  'Hi! I\'m the Statsbot! **autism intensifies**\n'
+                    +   'I provide the following data:\n'
+                    +   'Battles\nWinrate\nwows-numbers Personal Rating*\nAverage Damage\nLink to their wows-numbers profile\n\n'
+                    +   '*Note: The wows-numbers PR is calculated using their provided formula and the latest data from Wargaming. It may differ from the website by 1 or 2 points due to rounding or more recent data.\n',
+                usage:  '**USAGE:**\n'
+                    +   '```!stats <nickname> <NA|EU|(SEA|ASIA)|RU>```\n'
+                    +   'The entire command is case-insensitive, eg. `!sTats`, `iSsm`, and `nA` are all valid.\n'
+                    +   'Example: `!stats vonEtienne EU`\n'
+                    +   'To display this help message, type `!stats`',
                 argError: 'Error! Looks like you didn\'t call me with the right arguments.'
             }
         }
