@@ -48,39 +48,112 @@ module.exports = (() => {
 
         getMatchingPlayer(search, normalizedServer) {
             let match;
-
-            return this.searchShipsPlayers(search, normalizedServer)
-            .then((players) => {
-                console.log('found some players hopefully')
-                console.log(players)
-                for (let i = 0; i < players.length; i++) {
-                    let currentPlayer = players[i];
-
-                    if (search.toUpperCase() === currentPlayer.nickname.toUpperCase()) {
-                        match = currentPlayer;
-                        break;
+            return new Promise((resolve, reject) => {
+                this.searchShipsPlayers(search, normalizedServer)
+                .then((players) => {
+                    console.log('found some players hopefully')
+                    console.log(players)
+                    for (let i = 0; i < players.length; i++) {
+                        let currentPlayer = players[i];
+    
+                        if (search.toUpperCase() === currentPlayer.nickname.toUpperCase()) {
+                            match = currentPlayer;
+                            break;
+                        }
                     }
-                }
-
-                console.log('match')
-                console.log(match)
-
-                if (!match) {
-                    return Promise.reject(new Error('No exact matches for player ' + search + ' on ' + normalizedServer + ' found. Please provide the full username.'));
-                }
-
-                return Promise.resolve(match);
+    
+                    console.log('match')
+                    console.log(match)
+    
+                    if (!match) {
+                        return reject(new Error('No exact matches for player ' + search + ' on ' + normalizedServer + ' found. Please provide the full username.'));
+                    }
+    
+                    return resolve(match);
+                })
+                .catch((err) => {
+                    return reject(err);
+                });
             })
-            .catch((err) => {
-                return Promise.reject(err);
-            });
+           
         }
 
-        // checkIfProfileIsPrivate(accountId) {
+        // checkIfProfileIsPrivate(account_id) {
         //     return new Promise((resolve, reject) => {
 
         //     })
         // }
+
+        getPersonalData (account_id, normalizedServer) {
+            return new Promise((resolve, reject) => {
+                this.apiCall({
+                    normalizedServer: normalizedServer,
+                    endpoint: '/account/info/',
+                    body: {
+                        account_id: account_id
+                    }
+                })
+                .then((response) => {
+                    return resolve(response)
+                })
+                .catch((err) => {
+                    return reject(err);
+                })
+            })
+        }
+
+        // assumes account is not private, but this information will be in the personal data
+        getPvpStats (account_id, normalizedServer) {
+            return new Promise((resolve, reject) => {
+                // the personal data is stored in the 'data' subfield
+                // but 'data' is an object with the one key being the account ID.
+                // I'll pass in the account_id just to be safe
+                // TODO: test if we can just pull it out
+                // because I don't trust wargaming lmao
+                this.getPersonalData(account_id, normalizedServer)
+                .then((personalData) => {
+                    let pvpStats = personalData.data[account_id].statistics.pvp;
+
+                    let battles = pvpStats.battles;
+                    let wins = pvpStats.wins;
+                    let damage = pvpStats.damage_dealt;
+                    let exp = pvpStats.xp;
+                    let kills = pvpStats.frags;
+    
+                    return resolve({
+                        battles: battles,
+                        winrate: (wins/battles * 100.0),
+                        avgDamage: damage/battles,
+                        avgExp: exp/battles,
+                        avgKills: kills/battles
+                    });
+                })
+                .catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
+
+        getPvpShipsData (account_id, normalizedServer) {
+            return new Promise((resolve, reject) => {
+                this.apiCall({
+                    normalizedServer: normalizedServer,
+                    endpoint: '/ships/stats/',
+                    body: {
+                        account_id: account_id
+                    }
+                })
+                .then((response) => {
+                    let pvpShipsData = response.data[account_id];
+                    return resolve(pvpShipsData)
+                })
+                .catch((err) => {
+                    return reject(err);
+                })
+            })
+        }
+
+
 
         apiCall(options) {
             // mandatory fields
@@ -109,8 +182,8 @@ module.exports = (() => {
 
                 request.post(requestOptions, (err, response, body) => {
                     let parsed = JSON.parse(body);
-                    console.log('got response');
-                    console.log(parsed);
+                    // console.log('got response');
+                    // console.log(parsed);
 
                     if (err || parsed.status !== 'ok') {  // wargaming sends all errors as 200 REEEEEEEEEEEEEEEEEEE
                         let errType = parsed.error.message;
