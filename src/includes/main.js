@@ -56,110 +56,50 @@ module.exports = (() => {
                         });
                     } // exit and reply here or something
                     
-                    return parser.normalizeServer(args.server)
+                    // first normalize the server
+                    parser.normalizeServer(args.server)
                     .then((server) => {
                         console.log('normalizedServer resolved')
                         console.log(server);
                         normalizedServer = server;
-                        return resolve();
+
+                        // then get a matching player and account_id
+                        return this.wg.getMatchingPlayer(args.nickname, normalizedServer);
+                    })
+                    .then((match) => {
+                        matchingPlayer = match;
+     
+                        // get their stats
+                        return Promise.all([
+                            this.wg.getPvpStats(matchingPlayer.account_id, normalizedServer), 
+                            this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
+                            .then(lookup.calculatePr.bind(lookup))
+                            .catch((err) => { return Promise.reject(err); })
+                        ]);
+                    })
+                    .then((values) => {
+                        pvpStats = values[0];
+                        pr = values[1];
+                        
+                        // we have the matched player, basic stats, and PR
+                        // now put it all into a message
+                        let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
+                        console.log('profileUrl')
+                        console.log(profileUrl)
+                        let reply = '\n' + matchingPlayer.nickname + ' on ' + normalizedServer + ':\n'
+                                +   'Battles: ' + pvpStats.battles + '\n'
+                                +   'Winrate: ' + pvpStats.winrate.toFixed(2) + '%\n'
+                                +   'PR: ' + pr.toFixed(0) + '\n'
+                                +   'Avg. Damage: ' + pvpStats.avgDamage.toFixed(0) + '\n'
+                                +   profileUrl;
+                        
+                        return resolve(reply);
                     })
                     .catch((err) => {
-                        console.log('normalizedServer caught')
-                        return reject ({
-                            error: err,
-                            willReply: true,
-                            message: err.message
-                        });
+                        return reject(err);
                     });
                 }
-                else return reject({
-                    error: null,
-                    willReply: false,
-                    message: 'Bot was not called.'
-                });
-            })
-            .then(() => {
-                // first get a matching player and account_id
-                return this.wg.getMatchingPlayer(args.nickname, normalizedServer)
-                .then((match) => {
-                    matchingPlayer = match;
-                    return Promise.resolve();
-                })
-                .catch((err) => {
-                    return Promise.reject({
-                        error: err,
-                        willReply: true,
-                        message: err.message
-                    });
-                });
-            })
-            .then(() => {
-                // we get their PVP stats
-                return this.wg.getPvpStats(matchingPlayer.account_id, normalizedServer)
-                .then((data) => {
-                    pvpStats = data;
-                    return Promise.resolve();
-                })
-                .catch((err) => {
-                    return Promise.reject({
-                        error: err,
-                        willReply: true,
-                        message: err.message
-                    });
-                });
-            })
-            .then(() => {
-                // we get their individual ship stats
-                return this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
-                .then((data) => {
-                    pvpShipsData = data;
-                    return Promise.resolve();
-                })
-                .catch((err) => {
-                    return Promise.reject({
-                        error: err,
-                        willReply: true,
-                        message: err.message
-                    });
-                })
-            })
-            .then(() => {
-                // now we calculate PR
-                return lookup.calculatePr(pvpShipsData)
-                .then((result) => {
-                    pr = result;
-                    return Promise.resolve();
-                })
-                .catch((err) => {
-                    return Promise.reject({
-                        error: err,
-                        willReply: true,
-                        message: err.message
-                    });
-                });
-            })
-            .then(() => {
-                // we have the matched player, basic stats, and PR
-                // now put it all into a message
-                let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
-                console.log('profileUrl')
-                console.log(profileUrl)
-                let reply = '\n' + matchingPlayer.nickname + ' on ' + normalizedServer + ':\n'
-                        +   'Battles: ' + pvpStats.battles + '\n'
-                        +   'Winrate: ' + pvpStats.winrate.toFixed(2) + '%\n'
-                        +   'PR: ' + pr.toFixed(0) + '\n'
-                        +   'Avg. Damage: ' + pvpStats.avgDamage.toFixed(0) + '\n'
-                        +   profileUrl;
-                
-                return Promise.resolve(reply);
-            })
-            .then((reply) => {
-                console.log('ready to send reply')
-                console.log(reply);
-                return Promise.resolve(reply);      // returns back to the caller
-            })
-            .catch((errObj) => {
-                return Promise.reject(errObj);
+                else return;        // bot was not called
             });
         }
 

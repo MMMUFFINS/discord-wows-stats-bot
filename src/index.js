@@ -45,10 +45,10 @@ client.on('message', message => {
                 reply: message.author
             });
         })
-        .catch((errObj) => {
-            if (errObj.willReply) {
-                message.channel.send(errObj.message);
-            }
+        .catch((err) => {
+            message.channel.send(err.message, {
+                reply: message.author
+            });
         });
     }
 });
