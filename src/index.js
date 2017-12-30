@@ -41,7 +41,9 @@ client.on('message', message => {
     else {
         statsbot.handleMessage(message)
         .then((reply) => {
-            message.channel.send(reply);
+            message.channel.send(reply, {
+                reply: message.author
+            });
         })
         .catch((errObj) => {
             if (errObj.willReply) {

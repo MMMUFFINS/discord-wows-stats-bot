@@ -144,7 +144,7 @@ module.exports = (() => {
                 let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
                 console.log('profileUrl')
                 console.log(profileUrl)
-                let reply = matchingPlayer.nickname + ' on ' + normalizedServer + ':\n'
+                let reply = '\n' + matchingPlayer.nickname + ' on ' + normalizedServer + ':\n'
                         +   'Battles: ' + pvpStats.battles + '\n'
                         +   'Winrate: ' + pvpStats.winrate.toFixed(2) + '%\n'
                         +   'PR: ' + pr.toFixed(0) + '\n'
