@@ -52,11 +52,7 @@ module.exports = (() => {
                     console.log('args');
                     console.log(args)
                     if (!args) {
-                        return reject({
-                            error: new Error('Malformed bot command.'),
-                            willReply: true,
-                            message: this.printUsageError()
-                        });
+                        return reject(new Error('Malformed bot command.'));
                     } // exit and reply here or something
                     
                     // first normalize the server
