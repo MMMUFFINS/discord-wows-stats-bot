@@ -62,8 +62,6 @@ module.exports = (() => {
                     // first normalize the server
                     parser.normalizeServer(args.server)
                     .then((server) => {
-                        console.log('normalizedServer resolved')
-                        console.log(server);
                         normalizedServer = server;
     
                         // then get a matching player and account_id
@@ -74,15 +72,16 @@ module.exports = (() => {
                         
                         // use getAccountInfo to check if their account is private
                         return this.wg.getAccountInfo(matchingPlayer.account_id, normalizedServer);
-
-                        // get their stats
-                        // return this.replyWithStats(matchingPlayer, normalizedServer);
                     })
                     .then((response) => {
                         let accountInfo = response.data[matchingPlayer.account_id];
 
                         if (accountInfo.hidden_profile === true) {
-                            return Promise.reject(new Error(parser.playerOnServer(matchingPlayer, normalizedServer) + ' is a shitter who marked his profile as private!'));
+                            return Promise.reject(
+                                new Error(
+                                    parser.playerOnServer(matchingPlayer, normalizedServer) + ' is a shitter who marked his profile as private!'
+                                )
+                            );
                         }
                         else {
                             let pvpStats = lookup.calculateOverallPvpStats(accountInfo.statistics.pvp);
