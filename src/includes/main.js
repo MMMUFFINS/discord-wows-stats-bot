@@ -34,20 +34,14 @@ module.exports = (() => {
             let normalizedServer;
 
             return new Promise((resolve, reject) => {
-                console.log('handling message')
-                console.log(message.content);
                 if (parser.botCalled(message.content)) {
-                    console.log('bot was called')
                     let helpRequest = parser.checkHelpMode(message.content);
     
                     if (helpRequest) {
-                        console.log('got a help request')
                         return reject(new Error(this.printUsageFriendly()));
                     }
     
                     args = parser.getArgs(message.content);
-                    console.log('args');
-                    console.log(args)
                     if (!args) {
                         return reject(new Error('Malformed bot command.'));
                     } // exit and reply here or something
@@ -88,7 +82,6 @@ module.exports = (() => {
                         }
                     })
                     .then((reply) => {
-                        console.log('sending reply')
                         return resolve(reply);
                     })
                     .catch((err) => {
@@ -113,16 +106,12 @@ module.exports = (() => {
 
                 this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
                 .then((pvpShipsData) => {
-                    console.log('got pvp ships data');
-
                     let pr = lookup.calculatePr(pvpShipsData);
-                    console.log('calculated pr');
                     
                     // we have the matched player, basic stats, and PR
                     // now put it all into a message
                     let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
-                    console.log('profileUrl')
-                    console.log(profileUrl)
+
                     let reply = '\n' + parser.playerOnServer(matchingPlayer, normalizedServer) + ':\n';
                     let tableContent = [
                         ['Battles:', pvpStats.battles],
