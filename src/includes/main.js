@@ -31,11 +31,6 @@ module.exports = (() => {
             let args;
             let matchingPlayer;
             let normalizedServer;
-            let accountInfo;
-            let pvpShipsData;
-            let pr;
-            let pvpStats;
-
             let userOnServer;
 
             return new Promise((resolve, reject) => {
@@ -86,13 +81,13 @@ module.exports = (() => {
                         // return this.replyWithStats(matchingPlayer, normalizedServer);
                     })
                     .then((response) => {
-                        accountInfo = response.data[matchingPlayer.account_id];
+                        let accountInfo = response.data[matchingPlayer.account_id];
 
                         if (accountInfo.hidden_profile === true) {
                             return Promise.reject(new Error(userOnServer + ' is a shitter who marked his profile as private!'));
                         }
                         else {
-                            pvpStats = lookup.calculateOverallPvpStats(accountInfo.statistics.pvp);
+                            let pvpStats = lookup.calculateOverallPvpStats(accountInfo.statistics.pvp);
                             return this.replyWithStats(matchingPlayer, normalizedServer, pvpStats);
                         }
                     })
