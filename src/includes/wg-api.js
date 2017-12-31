@@ -64,9 +64,6 @@ module.exports = (() => {
                         }
                     }
     
-                    console.log('match')
-                    console.log(match)
-    
                     if (!match) {
                         return reject(new Error('No exact match for player ' + search + ' on ' + normalizedServer + ' found. Please provide the full username.'));
                     }
@@ -96,7 +93,6 @@ module.exports = (() => {
                     }
                 })
                 .then((response) => {
-                    console.log('getAccountInfo request resolved')
                     return resolve(response)
                 })
                 .catch((err) => {
@@ -115,7 +111,6 @@ module.exports = (() => {
                     }
                 })
                 .then((response) => {
-                    console.log('got pvpShipsData');
                     let pvpShipsData = response.data[account_id];
                     return resolve(pvpShipsData);
                 })
@@ -192,9 +187,6 @@ module.exports = (() => {
                     body: encodedBody
                 };
 
-                console.log('sending wg api call');
-                console.log(requestOptions);
-
                 request.post(requestOptions, (err, response, body) => {
                     let parsed = JSON.parse(body);
                     // console.log('got response');
@@ -210,7 +202,6 @@ module.exports = (() => {
                         )));
                     }
                     else {
-                        console.log('got api response');
                         return resolve(parsed);
                     }
                 });
