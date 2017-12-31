@@ -41,11 +41,7 @@ module.exports = (() => {
     
                     if (helpRequest) {
                         console.log('got a help request')
-                        return reject({
-                            error: new Error('User requested help message.'),
-                            willReply: true,
-                            message: this.printUsageFriendly()
-                        });
+                        return reject(new Error(this.printUsageFriendly()));
                     }
     
                     args = parser.getArgs(message.content);
