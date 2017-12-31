@@ -71,7 +71,14 @@ module.exports = (() => {
             });
         }
         playerOnServer(player, normalizedServer) {
-            return player.nickname + ' on ' + normalizedServer;
+            let output = '';
+
+            if (player.clan) {
+                output += '[' + player.clan.tag + ']';
+            }
+
+            output += player.nickname + ' on ' + normalizedServer;
+            return output;
         }
     }
 

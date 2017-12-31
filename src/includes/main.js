@@ -71,10 +71,16 @@ module.exports = (() => {
                         matchingPlayer = match;
                         
                         // use getAccountInfo to check if their account is private
-                        return this.wg.getAccountInfo(matchingPlayer.account_id, normalizedServer);
+                        return Promise.all([
+                            this.wg.getAccountInfo(matchingPlayer.account_id, normalizedServer),
+                            this.wg.getPlayerClanInfo(matchingPlayer.account_id, normalizedServer)
+                        ]);
                     })
-                    .then((response) => {
-                        let accountInfo = response.data[matchingPlayer.account_id];
+                    .then((values) => {
+                        let accountInfoResponse = values[0];
+                        let accountInfo = accountInfoResponse.data[matchingPlayer.account_id];
+
+                        matchingPlayer.clan = values[1];
 
                         if (accountInfo.hidden_profile === true) {
                             return Promise.reject(

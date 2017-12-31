@@ -125,7 +125,50 @@ module.exports = (() => {
             })
         }
 
+        getPlayerClanInfo (account_id, normalizedServer) {
+            return new Promise((resolve, reject) => {
+                // need to send one request using the player's account_id to find if they're in a clan
+                // because it's not in their account info (/account/info/)
+                // if so, send another request to look up the details
+                // if not in a clan, response will have clan_id: null
+                let clan_id;
 
+                this.apiCall({
+                    normalizedServer: normalizedServer,
+                    endpoint: '/clans/accountinfo/',
+                    body: {
+                        account_id: account_id
+                    }
+                })
+                .then((response) => {
+                    clan_id = response.data[account_id].clan_id;
+
+                    if (!clan_id) {
+                        return resolve(null);
+                    }
+
+                    return this.apiCall({
+                        normalizedServer: normalizedServer,
+                        endpoint: '/clans/info/',
+                        body: {
+                            clan_id: clan_id
+                        }
+                    });
+                })
+                .then((response) => {
+                    let clanDetails = response.data[clan_id];
+
+                    return resolve({
+                        name: clanDetails.name,
+                        tag: clanDetails.tag,
+                        clanId: clan_id
+                    });
+                })
+                .catch((err) => {
+                    return reject(err);
+                })
+            })
+        }
 
         apiCall(options) {
             // mandatory fields
