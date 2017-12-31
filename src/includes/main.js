@@ -4,6 +4,7 @@ let parser = require('./parser');
 let request = require('request');
 let WargamingApi = require('./wg-api');
 let lookup = require('./lookup');
+let table = require('text-table');
 
 module.exports = (() => {
     class WarshipsStatsBot {
@@ -122,12 +123,20 @@ module.exports = (() => {
                     let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
                     console.log('profileUrl')
                     console.log(profileUrl)
-                    let reply = '\n' + parser.playerOnServer(matchingPlayer, normalizedServer) + ':\n'
-                            +   'Battles: ' + pvpStats.battles + '\n'
-                            +   'Winrate: ' + pvpStats.winrate.toFixed(2) + '%\n'
-                            +   'PR: ' + pr.toFixed(0) + '\n'
-                            +   'Avg. Damage: ' + pvpStats.avgDamage.toFixed(0) + '\n'
-                            +   profileUrl;
+                    let reply = '\n' + parser.playerOnServer(matchingPlayer, normalizedServer) + ':\n';
+                    let tableContent = [
+                        ['Battles:', pvpStats.battles],
+                        ['Winrate:', pvpStats.winrate.toFixed(2) + '%'],
+                        ['PR:', pr.toFixed(0)],
+                        ['Avg. Damage:', pvpStats.avgDamage.toFixed(0)]
+                    ];
+
+                    let statsTable = table(tableContent, {
+                        align: ['l', 'r']
+                    });
+
+                    reply += '```' + statsTable + '```';
+                    reply += profileUrl;
 
                     if (matchingPlayer.clan) {
                         reply += '\n' + lookup.getClanUrl(matchingPlayer.clan, normalizedServer, 'wows-numbers');

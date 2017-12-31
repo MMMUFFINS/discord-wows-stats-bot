@@ -18,6 +18,7 @@
   "homepage": "https://github.com/MMMUFFINS/discord-wows-stats-bot#readme",
   "dependencies": {
     "discord.js": "^11.2.1",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "text-table": "^0.2.0"
   }
 }
