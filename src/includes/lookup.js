@@ -35,7 +35,6 @@ module.exports = (() => {
             switch (service) {
                 case 'wows-numbers':
                     imgUrl = Lookup.services[service].imgUrlBase + player.account_id + '.png';
-                    console.log('imgurl: ' + imgUrl)
                     return imgUrl;
                 
             // TODO: warships.today
@@ -71,8 +70,6 @@ module.exports = (() => {
         getStatsUrls (match, normalizedServer) {
             // TODO: use args.service to select website
             return new Promise((resolve, reject) => {
-                console.log('get stats urls')
-                console.log({match: match, normalizedServer: normalizedServer})
                 let imgUrl = this.getImgUrl(match, normalizedServer, 'wows-numbers');
                 let profileUrl = this.getProfileUrl(match, normalizedServer, 'wows-numbers');
 
@@ -92,10 +89,7 @@ module.exports = (() => {
         getWNExpectedValues () {
             return new Promise((resolve, reject) => {
                 request('https://na.wows-numbers.com/personal/rating/expected/json/', (error, response, body) => {
-                    if (error) return reject(new Error('Could not get wows-numbers expected values. Their website may be unavailable (or this server is borked).'));
-                    
-                    console.log('got WN expected values');
-
+                    if (error) return reject(new Error('Could not get wows-numbers expected values. Their website may be unavailable (or the bot server is borked).'));
                     let parsed = JSON.parse(body);
                     return resolve(parsed);
                 })
@@ -146,8 +140,6 @@ module.exports = (() => {
             let nWins = Math.max(0, (rWins - 0.7) / (1 - 0.7));
 
             let pr =  700 * nDmg + 300 * nFrags + 150 * nWins;
-            // console.log('pr')
-            // console.log(pr)
 
             return pr;
          
