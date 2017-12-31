@@ -85,7 +85,7 @@ module.exports = (() => {
                         if (accountInfo.hidden_profile === true) {
                             return Promise.reject(
                                 new Error(
-                                    parser.playerOnServer(matchingPlayer, normalizedServer) + ' is a shitter who marked his profile as private!'
+                                    parser.playerOnServer(matchingPlayer, normalizedServer) + ' is a shitter with a private profile!'
                                 )
                             );
                         }
@@ -136,6 +136,10 @@ module.exports = (() => {
                             +   'PR: ' + pr.toFixed(0) + '\n'
                             +   'Avg. Damage: ' + pvpStats.avgDamage.toFixed(0) + '\n'
                             +   profileUrl;
+
+                    if (matchingPlayer.clan) {
+                        reply += '\n' + lookup.getClanUrl(matchingPlayer.clan, normalizedServer, 'wows-numbers');
+                    }
                     
                     return resolve(reply);
                 })

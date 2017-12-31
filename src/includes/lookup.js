@@ -16,7 +16,7 @@ module.exports = (() => {
         static get services() {
             return {
                'wows-numbers': {
-                   domainName: 'wows-numbers.com/',
+                   domainName: 'wows-numbers.com',
                    subdomains: {
                        'NA': 'na',
                        'EU': '',    // default is EU!
@@ -56,7 +56,7 @@ module.exports = (() => {
                         profileUrl += subdomain + '.';
                     }
 
-                    profileUrl += selectedService.domainName + 'player/';   // includes trailing slash
+                    profileUrl += selectedService.domainName + '/player/';   // includes trailing slash
                     profileUrl += player.account_id + ',' + player.nickname + '/';
                     
                     return profileUrl;
@@ -166,6 +166,29 @@ module.exports = (() => {
 
             return pr;
          
+        }
+
+        getClanUrl (clan, normalizedServer, service) {
+            switch (service) {
+                case 'wows-numbers':
+                    let clanNameNoSpaces = clan.name.replace(' ', '-');
+                    return this.getWNBaseUrl(normalizedServer) + '/clan/' + clan.clanId + ',' + clan.tag +'/';       // as of now it expects any arbitrary string after the clanId in the URL
+                default:
+                    return null;
+            }
+        }
+
+        getWNBaseUrl (normalizedServer) {
+            let baseUrl = 'https://';
+
+            let subdomain = Lookup.services['wows-numbers'].subdomains[normalizedServer];
+            if (subdomain.length > 0) {
+                baseUrl += subdomain + '.';
+            }
+
+            baseUrl += Lookup.services['wows-numbers'].domainName;
+
+            return baseUrl;
         }
 
         updateWNExpectedValues () {

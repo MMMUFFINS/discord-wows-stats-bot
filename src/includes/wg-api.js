@@ -117,7 +117,7 @@ module.exports = (() => {
                 .then((response) => {
                     console.log('got pvpShipsData');
                     let pvpShipsData = response.data[account_id];
-                    return resolve(pvpShipsData)
+                    return resolve(pvpShipsData);
                 })
                 .catch((err) => {
                     return reject(err);
