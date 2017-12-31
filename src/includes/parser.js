@@ -71,6 +71,9 @@ module.exports = (() => {
                 }
             });
         }
+        playerOnServer(player, normalizedServer) {
+            return player.nickname + ' on ' + normalizedServer;
+        }
     }
 
     let parser = new StatsBotMsgParser();

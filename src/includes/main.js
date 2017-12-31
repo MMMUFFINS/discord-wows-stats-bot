@@ -31,7 +31,6 @@ module.exports = (() => {
             let args;
             let matchingPlayer;
             let normalizedServer;
-            let userOnServer;
 
             return new Promise((resolve, reject) => {
                 console.log('handling message')
@@ -72,7 +71,6 @@ module.exports = (() => {
                     })
                     .then((match) => {
                         matchingPlayer = match;
-                        userOnServer = matchingPlayer.nickname + ' on ' + normalizedServer;
                         
                         // use getAccountInfo to check if their account is private
                         return this.wg.getAccountInfo(matchingPlayer.account_id, normalizedServer);
@@ -84,7 +82,7 @@ module.exports = (() => {
                         let accountInfo = response.data[matchingPlayer.account_id];
 
                         if (accountInfo.hidden_profile === true) {
-                            return Promise.reject(new Error(userOnServer + ' is a shitter who marked his profile as private!'));
+                            return Promise.reject(new Error(parser.playerOnServer(matchingPlayer, normalizedServer) + ' is a shitter who marked his profile as private!'));
                         }
                         else {
                             let pvpStats = lookup.calculateOverallPvpStats(accountInfo.statistics.pvp);
@@ -127,7 +125,7 @@ module.exports = (() => {
                     let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
                     console.log('profileUrl')
                     console.log(profileUrl)
-                    let reply = '\n' + matchingPlayer.nickname + ' on ' + normalizedServer + ':\n'
+                    let reply = '\n' + parser.playerOnServer(matchingPlayer, normalizedServer) + ':\n'
                             +   'Battles: ' + pvpStats.battles + '\n'
                             +   'Winrate: ' + pvpStats.winrate.toFixed(2) + '%\n'
                             +   'PR: ' + pr.toFixed(0) + '\n'
