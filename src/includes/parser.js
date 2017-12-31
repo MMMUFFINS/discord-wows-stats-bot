@@ -14,7 +14,6 @@ module.exports = (() => {
 
         botCalled(text) {
             let regex = new RegExp('^' + StatsBotMsgParser.args.keyword, 'i');
-            console.log(regex)
             if (text.search(regex) === 0) return true;
             return false;
         }
