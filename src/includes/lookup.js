@@ -4,7 +4,15 @@ const parser = require('./parser')
 const request = require('request');
 
 module.exports = (() => {
-    class ExternalLookup {
+    class Lookup {
+        constructor () {
+            this.updateWNExpectedValues();
+
+            // expected values file doesn't seem to change too often
+            let updateIntervalMinutesInMs = 10 * 60*1000;
+            setTimeout(this.updateWNExpectedValues.bind(this), updateIntervalMinutesInMs);
+        }
+
         static get services() {
             return {
                'wows-numbers': {
@@ -26,7 +34,7 @@ module.exports = (() => {
             let imgUrl;
             switch (service) {
                 case 'wows-numbers':
-                    imgUrl = ExternalLookup.services[service].imgUrlBase + player.account_id + '.png';
+                    imgUrl = Lookup.services[service].imgUrlBase + player.account_id + '.png';
                     console.log('imgurl: ' + imgUrl)
                     return imgUrl;
                 
@@ -40,7 +48,7 @@ module.exports = (() => {
             let profileUrl;
             switch (service) {
                 case 'wows-numbers':
-                    let selectedService = ExternalLookup.services[service];
+                    let selectedService = Lookup.services[service];
                     profileUrl = 'https://';
                     let subdomain = selectedService.subdomains[normalizedServer];
 
@@ -84,77 +92,83 @@ module.exports = (() => {
         getWNExpectedValues () {
             return new Promise((resolve, reject) => {
                 request('https://na.wows-numbers.com/personal/rating/expected/json/', (error, response, body) => {
-                    if (error) return reject(new Error('Could not get expected values.'));
+                    if (error) return reject(new Error('Could not get wows-numbers expected values. Their website may be unavailable (or this server is borked).'));
+                    
+                    console.log('got WN expected values');
 
                     let parsed = JSON.parse(body);
-                    let expectedValues = parsed.data;
-                    return resolve(expectedValues);
+                    return resolve(parsed);
                 })
             });
         }
 
         calculatePr (pvpData) {
-            return new Promise((resolve, reject) => {
-                console.log('getting expected values...');
-                this.getWNExpectedValues()
-                .then((expectedValues) => {
-                    console.log('got expected values');
-                    let expectedDamage = 0;
-                    let expectedFrags = 0;
-                    let expectedWinrate = 0;
-    
-                    let actualDamage = 0;
-                    let actualFrags = 0;
-                    let actualWinrate = 0;
-    
-                    for (let i = 0; i < pvpData.length; i++) {
-                        let currentShip = pvpData[i];
-                        // console.log('current ship ID: ' + currentShip.ship_id)
+            let expectedDamage = 0;
+            let expectedFrags = 0;
+            let expectedWinrate = 0;
 
-                        // console.log('number of battles:')
-                        // console.log(currentShip.pvp.battles);
+            let actualDamage = 0;
+            let actualFrags = 0;
+            let actualWinrate = 0;
 
-                        if (currentShip.pvp.battles > 0) {
-                            actualDamage += currentShip.pvp.damage_dealt;
-                            actualWinrate += Number(currentShip.pvp.wins / currentShip.pvp.battles) * 100;
-                            actualFrags += currentShip.pvp.frags;
-    
-                            // console.log({
-                            //     ship_id: currentShip.ship_id,
-                            //     actualDamage: actualDamage,
-                            //     actualWinrate: actualWinrate,
-                            //     actualFrags: actualFrags,
-                            //     battles: currentShip.pvp.battles
-                            // });
-        
-                            expectedDamage += expectedValues[currentShip.ship_id].average_damage_dealt * currentShip.pvp.battles;
-                            expectedWinrate += expectedValues[currentShip.ship_id].win_rate;
-                            expectedFrags += expectedValues[currentShip.ship_id].average_frags * currentShip.pvp.battles;
-                        }
-                    }
-    
-                    let rDmg = actualDamage / expectedDamage;
-                    let rWins = actualWinrate / expectedWinrate;
-                    let rFrags = actualFrags / expectedFrags;
-    
-                    let nDmg = Math.max(0, (rDmg - 0.4) / (1 - 0.4));
-                    let nFrags = Math.max(0, (rFrags - 0.1) / (1 - 0.1));
-                    let nWins = Math.max(0, (rWins - 0.7) / (1 - 0.7));
-    
-                    let pr =  700 * nDmg + 300 * nFrags + 150 * nWins;
-                    // console.log('pr')
-                    // console.log(pr)
-    
-                    return resolve(pr);
-                })
-                .catch((err) => {
-                    return reject(err)
-                });
+            for (let i = 0; i < pvpData.length; i++) {
+                let currentShip = pvpData[i];
+                // console.log('current ship ID: ' + currentShip.ship_id)
+
+                // console.log('number of battles:')
+                // console.log(currentShip.pvp.battles);
+
+                if (currentShip.pvp.battles > 0) {
+                    actualDamage += currentShip.pvp.damage_dealt;
+                    actualWinrate += Number(currentShip.pvp.wins / currentShip.pvp.battles) * 100;
+                    actualFrags += currentShip.pvp.frags;
+
+                    // console.log({
+                    //     ship_id: currentShip.ship_id,
+                    //     actualDamage: actualDamage,
+                    //     actualWinrate: actualWinrate,
+                    //     actualFrags: actualFrags,
+                    //     battles: currentShip.pvp.battles
+                    // });
+
+                    expectedDamage += this.expectedValues.data[currentShip.ship_id].average_damage_dealt * currentShip.pvp.battles;
+                    expectedWinrate += this.expectedValues.data[currentShip.ship_id].win_rate;
+                    expectedFrags += this.expectedValues.data[currentShip.ship_id].average_frags * currentShip.pvp.battles;
+                }
+            }
+
+            let rDmg = actualDamage / expectedDamage;
+            let rWins = actualWinrate / expectedWinrate;
+            let rFrags = actualFrags / expectedFrags;
+
+            let nDmg = Math.max(0, (rDmg - 0.4) / (1 - 0.4));
+            let nFrags = Math.max(0, (rFrags - 0.1) / (1 - 0.1));
+            let nWins = Math.max(0, (rWins - 0.7) / (1 - 0.7));
+
+            let pr =  700 * nDmg + 300 * nFrags + 150 * nWins;
+            // console.log('pr')
+            // console.log(pr)
+
+            return pr;
+         
+        }
+
+        updateWNExpectedValues () {
+            this.getWNExpectedValues()
+            .then((expectedValues) => {
+                let updateTime = new Date(expectedValues.time * 1000);
+                console.log('Updated wows-numbers Expected Values at: ' + expectedValues.time + ' (' + updateTime + ')');
+                this.expectedValues = expectedValues;
+                return;
+            })
+            .catch((err) => {
+                console.error(err.message);
+                return;
             });
         }
     }
 
-    let serviceHandler = new ExternalLookup();
+    let serviceHandler = new Lookup();
     return serviceHandler;
 
 })();

@@ -79,14 +79,15 @@ module.exports = (() => {
                         return Promise.all([
                             this.wg.getPvpStats(matchingPlayer.account_id, normalizedServer), 
                             this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
-                            .then(lookup.calculatePr.bind(lookup))
-                            .catch((err) => { return Promise.reject(err); })
                         ]);
                     })
                     .then((values) => {
-                        console.log('got pvp stats and pr');
+                        console.log('got pvp stats and pvp ships data');
                         pvpStats = values[0];
-                        pr = values[1];
+                        pvpShipsData = values[1];
+
+                        pr = lookup.calculatePr(pvpShipsData);
+                        console.log('calculated pr');
                         
                         // we have the matched player, basic stats, and PR
                         // now put it all into a message
