@@ -17,7 +17,8 @@ module.exports = (() => {
                     +   '```!stats <nickname> <NA|EU|(SEA|ASIA)|RU>```\n'
                     +   'The entire command is case-insensitive, eg. `!sTats`, `iSsm`, and `nA` are all valid.\n'
                     +   'Example: `!stats vonEtienne EU`\n'
-                    +   'To display this help message, type `!stats`',
+                    +   'To display this help message, type `!stats`\n'
+                    +   'To report an issue, go here: https://github.com/MMMUFFINS/discord-wows-stats-bot/issues',
                 argError: 'Error! Looks like you didn\'t call me with the right arguments.'
             }
         }
