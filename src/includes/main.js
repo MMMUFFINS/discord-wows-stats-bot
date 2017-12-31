@@ -34,7 +34,6 @@ module.exports = (() => {
             let pvpStats;
             let pvpShipsData;
             let pr;
-
             return new Promise((resolve, reject) => {
                 console.log('handling message')
                 console.log(message.content);
@@ -68,39 +67,17 @@ module.exports = (() => {
                         console.log('normalizedServer resolved')
                         console.log(server);
                         normalizedServer = server;
-
+    
                         // then get a matching player and account_id
                         return this.wg.getMatchingPlayer(args.nickname, normalizedServer);
                     })
                     .then((match) => {
                         matchingPlayer = match;
-     
+        
                         // get their stats
-                        return Promise.all([
-                            this.wg.getPvpStats(matchingPlayer.account_id, normalizedServer), 
-                            this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
-                        ]);
+                        return this.replyWithStats(matchingPlayer, normalizedServer);
                     })
-                    .then((values) => {
-                        console.log('got pvp stats and pvp ships data');
-                        pvpStats = values[0];
-                        pvpShipsData = values[1];
-
-                        pr = lookup.calculatePr(pvpShipsData);
-                        console.log('calculated pr');
-                        
-                        // we have the matched player, basic stats, and PR
-                        // now put it all into a message
-                        let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
-                        console.log('profileUrl')
-                        console.log(profileUrl)
-                        let reply = '\n' + matchingPlayer.nickname + ' on ' + normalizedServer + ':\n'
-                                +   'Battles: ' + pvpStats.battles + '\n'
-                                +   'Winrate: ' + pvpStats.winrate.toFixed(2) + '%\n'
-                                +   'PR: ' + pr.toFixed(0) + '\n'
-                                +   'Avg. Damage: ' + pvpStats.avgDamage.toFixed(0) + '\n'
-                                +   profileUrl;
-                        
+                    .then((reply) => {
                         return resolve(reply);
                     })
                     .catch((err) => {
@@ -120,6 +97,39 @@ module.exports = (() => {
             return WarshipsStatsBot.messages.argError + '\n' + WarshipsStatsBot.messages.usage;
         }
 
+        replyWithStats (matchingPlayer, normalizedServer) {
+            return new Promise((resolve, reject) => {
+                Promise.all([
+                    this.wg.getPvpStats(matchingPlayer.account_id, normalizedServer), 
+                    this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
+                ])
+                .then((values) => {
+                    console.log('got pvp stats and pvp ships data');
+                    let pvpStats = values[0];
+                    let pvpShipsData = values[1];
+    
+                    let pr = lookup.calculatePr(pvpShipsData);
+                    console.log('calculated pr');
+                    
+                    // we have the matched player, basic stats, and PR
+                    // now put it all into a message
+                    let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
+                    console.log('profileUrl')
+                    console.log(profileUrl)
+                    let reply = '\n' + matchingPlayer.nickname + ' on ' + normalizedServer + ':\n'
+                            +   'Battles: ' + pvpStats.battles + '\n'
+                            +   'Winrate: ' + pvpStats.winrate.toFixed(2) + '%\n'
+                            +   'PR: ' + pr.toFixed(0) + '\n'
+                            +   'Avg. Damage: ' + pvpStats.avgDamage.toFixed(0) + '\n'
+                            +   profileUrl;
+                    
+                    return resolve(reply);
+                })
+                .catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
     }
 
     return WarshipsStatsBot;
