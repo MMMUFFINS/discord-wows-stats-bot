@@ -31,9 +31,13 @@ module.exports = (() => {
             let args;
             let matchingPlayer;
             let normalizedServer;
-            let pvpStats;
+            let accountInfo;
             let pvpShipsData;
             let pr;
+            let pvpStats;
+
+            let userOnServer;
+
             return new Promise((resolve, reject) => {
                 console.log('handling message')
                 console.log(message.content);
@@ -73,11 +77,27 @@ module.exports = (() => {
                     })
                     .then((match) => {
                         matchingPlayer = match;
-        
+                        userOnServer = matchingPlayer.nickname + ' on ' + normalizedServer;
+                        
+                        // use getAccountInfo to check if their account is private
+                        return this.wg.getAccountInfo(matchingPlayer.account_id, normalizedServer);
+
                         // get their stats
-                        return this.replyWithStats(matchingPlayer, normalizedServer);
+                        // return this.replyWithStats(matchingPlayer, normalizedServer);
+                    })
+                    .then((response) => {
+                        accountInfo = response.data[matchingPlayer.account_id];
+
+                        if (accountInfo.hidden_profile === true) {
+                            return Promise.reject(new Error(userOnServer + ' is a shitter who marked his profile as private!'));
+                        }
+                        else {
+                            pvpStats = lookup.calculateOverallPvpStats(accountInfo.statistics.pvp);
+                            return this.replyWithStats(matchingPlayer, normalizedServer, pvpStats);
+                        }
                     })
                     .then((reply) => {
+                        console.log('sending reply')
                         return resolve(reply);
                     })
                     .catch((err) => {
@@ -97,17 +117,13 @@ module.exports = (() => {
             return WarshipsStatsBot.messages.argError + '\n' + WarshipsStatsBot.messages.usage;
         }
 
-        replyWithStats (matchingPlayer, normalizedServer) {
+        replyWithStats (matchingPlayer, normalizedServer, pvpStats) {
             return new Promise((resolve, reject) => {
-                Promise.all([
-                    this.wg.getPvpStats(matchingPlayer.account_id, normalizedServer), 
-                    this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
-                ])
-                .then((values) => {
-                    console.log('got pvp stats and pvp ships data');
-                    let pvpStats = values[0];
-                    let pvpShipsData = values[1];
-    
+
+                this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
+                .then((pvpShipsData) => {
+                    console.log('got pvp ships data');
+
                     let pr = lookup.calculatePr(pvpShipsData);
                     console.log('calculated pr');
                     

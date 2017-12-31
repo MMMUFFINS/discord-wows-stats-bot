@@ -96,6 +96,29 @@ module.exports = (() => {
             });
         }
 
+        // assumes account is not private, but this information will be in the personal data
+        calculateOverallPvpStats (pvpStats) {
+            // the personal data is stored in the 'data' subfield
+            // but 'data' is an object with the one key being the account ID.
+            // I'll pass in the account_id just to be safe
+            // TODO: test if we can just pull it out
+            // because I don't trust wargaming lmao
+            
+            let battles = pvpStats.battles;
+            let wins = pvpStats.wins;
+            let damage = pvpStats.damage_dealt;
+            let exp = pvpStats.xp;
+            let kills = pvpStats.frags;
+
+            return {
+                battles: battles,
+                winrate: (wins/battles * 100.0),
+                avgDamage: damage/battles,
+                avgExp: exp/battles,
+                avgKills: kills/battles
+            }
+        }
+
         calculatePr (pvpData) {
             let expectedDamage = 0;
             let expectedFrags = 0;

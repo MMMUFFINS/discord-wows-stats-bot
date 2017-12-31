@@ -19,10 +19,10 @@ module.exports = (() => {
             }
         }
 
-        static errorMessages (type, options, normalizedServer) {
+        static errorMessages (type, info, normalizedServer) {
             switch (type.toUpperCase()) {
                 case 'INVALID_SEARCH':
-                    return 'Player ' + options.nickname + ' not found on server ' + normalizedServer;
+                    return 'Player "' + info.search + '" not found on server ' + normalizedServer + '.';
                 
                 default:
                     return 'The error type ' + type + ' was created from sekrit russian documents. Please yell at the bot developer to fix this.'
@@ -51,8 +51,10 @@ module.exports = (() => {
             return new Promise((resolve, reject) => {
                 this.searchShipsPlayers(search, normalizedServer)
                 .then((players) => {
-                    console.log('found some players hopefully')
-                    console.log(players)
+                    if (players.length < 1) {
+                        return reject(new Error('Zero possible matches for search \"' + search + '\" on ' + normalizedServer + ' found. Please check the spelling and try again.'));
+                    }
+
                     for (let i = 0; i < players.length; i++) {
                         let currentPlayer = players[i];
     
@@ -66,7 +68,7 @@ module.exports = (() => {
                     console.log(match)
     
                     if (!match) {
-                        return reject(new Error('No exact matches for player ' + search + ' on ' + normalizedServer + ' found. Please provide the full username.'));
+                        return reject(new Error('No exact match for player ' + search + ' on ' + normalizedServer + ' found. Please provide the full username.'));
                     }
     
                     return resolve(match);
@@ -84,7 +86,7 @@ module.exports = (() => {
         //     })
         // }
 
-        getPersonalData (account_id, normalizedServer) {
+        getAccountInfo (account_id, normalizedServer) {
             return new Promise((resolve, reject) => {
                 this.apiCall({
                     normalizedServer: normalizedServer,
@@ -94,46 +96,13 @@ module.exports = (() => {
                     }
                 })
                 .then((response) => {
-                    console.log('getPersonalData request resolved')
+                    console.log('getAccountInfo request resolved')
                     return resolve(response)
                 })
                 .catch((err) => {
                     return reject(err);
                 })
             })
-        }
-
-        // assumes account is not private, but this information will be in the personal data
-        getPvpStats (account_id, normalizedServer) {
-            return new Promise((resolve, reject) => {
-                // the personal data is stored in the 'data' subfield
-                // but 'data' is an object with the one key being the account ID.
-                // I'll pass in the account_id just to be safe
-                // TODO: test if we can just pull it out
-                // because I don't trust wargaming lmao
-                this.getPersonalData(account_id, normalizedServer)
-                .then((personalData) => {
-                    console.log('got personal data')
-                    let pvpStats = personalData.data[account_id].statistics.pvp;
-
-                    let battles = pvpStats.battles;
-                    let wins = pvpStats.wins;
-                    let damage = pvpStats.damage_dealt;
-                    let exp = pvpStats.xp;
-                    let kills = pvpStats.frags;
-    
-                    return resolve({
-                        battles: battles,
-                        winrate: (wins/battles * 100.0),
-                        avgDamage: damage/battles,
-                        avgExp: exp/battles,
-                        avgKills: kills/battles
-                    });
-                })
-                .catch((err) => {
-                    return reject(err);
-                });
-            });
         }
 
         getPvpShipsData (account_id, normalizedServer) {
@@ -193,7 +162,7 @@ module.exports = (() => {
 
                         return reject(new Error(WargamingApi.errorMessages(
                             errType, 
-                            options,
+                            options.body,
                             options.normalizedServer
                         )));
                     }
