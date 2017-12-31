@@ -84,6 +84,7 @@ module.exports = (() => {
                         ]);
                     })
                     .then((values) => {
+                        console.log('got pvp stats and pr');
                         pvpStats = values[0];
                         pr = values[1];
                         

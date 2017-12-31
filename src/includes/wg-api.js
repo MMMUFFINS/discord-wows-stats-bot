@@ -94,6 +94,7 @@ module.exports = (() => {
                     }
                 })
                 .then((response) => {
+                    console.log('getPersonalData request resolved')
                     return resolve(response)
                 })
                 .catch((err) => {
@@ -112,6 +113,7 @@ module.exports = (() => {
                 // because I don't trust wargaming lmao
                 this.getPersonalData(account_id, normalizedServer)
                 .then((personalData) => {
+                    console.log('got personal data')
                     let pvpStats = personalData.data[account_id].statistics.pvp;
 
                     let battles = pvpStats.battles;
@@ -144,6 +146,7 @@ module.exports = (() => {
                     }
                 })
                 .then((response) => {
+                    console.log('got pvpShipsData');
                     let pvpShipsData = response.data[account_id];
                     return resolve(pvpShipsData)
                 })
@@ -195,7 +198,7 @@ module.exports = (() => {
                         )));
                     }
                     else {
-                        console.log('got player data');
+                        console.log('got api response');
                         return resolve(parsed);
                     }
                 });

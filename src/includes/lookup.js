@@ -95,8 +95,10 @@ module.exports = (() => {
 
         calculatePr (pvpData) {
             return new Promise((resolve, reject) => {
+                console.log('getting expected values...');
                 this.getWNExpectedValues()
                 .then((expectedValues) => {
+                    console.log('got expected values');
                     let expectedDamage = 0;
                     let expectedFrags = 0;
                     let expectedWinrate = 0;
@@ -140,7 +142,6 @@ module.exports = (() => {
                     let nWins = Math.max(0, (rWins - 0.7) / (1 - 0.7));
     
                     let pr =  700 * nDmg + 300 * nFrags + 150 * nWins;
-
                     // console.log('pr')
                     // console.log(pr)
     
