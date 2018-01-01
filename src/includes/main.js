@@ -28,6 +28,10 @@ module.exports = (() => {
             this.wg = new WargamingApi(appId);
         }
 
+        initWNEVAutoupdate () {
+            return lookup.autoUpdateWNEV(1);
+        }
+
         handleMessage (message) {
             let args;
             let matchingPlayer;
@@ -43,11 +47,14 @@ module.exports = (() => {
     
                     args = parser.getArgs(message.content);
                     if (!args) {
-                        return reject(new Error('Malformed bot command.'));
+                        return reject(new Error(this.printUsageError()));
                     } // exit and reply here or something
                     
                     // first normalize the server
                     parser.normalizeServer(args.server)
+                    .catch((err) => {
+                        return Promise.reject(new Error(this.printUsageError()));
+                    })
                     .then((server) => {
                         normalizedServer = server;
     
@@ -85,6 +92,8 @@ module.exports = (() => {
                         return resolve(reply);
                     })
                     .catch((err) => {
+                        if (matchingPlayer) console.log(matchingPlayer);
+                        console.error(err);
                         return reject(err);
                     });
                 }

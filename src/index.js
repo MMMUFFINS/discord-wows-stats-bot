@@ -21,6 +21,7 @@ const StatsBotClass = require('./includes/main')
 let statsbot = new StatsBotClass(wgAppId);
 
 
+
 // The ready event is vital, it means that your bot will only start reacting to information
 // from Discord _after_ ready is emitted
 client.on('ready', () => {
@@ -51,4 +52,11 @@ client.on('message', message => {
     }
 });
 
-client.login(discordToken);
+// actual program start
+statsbot.initWNEVAutoupdate()
+.then(() => {
+    client.login(discordToken);
+})
+.catch((err) => {
+    console.error(err);
+});

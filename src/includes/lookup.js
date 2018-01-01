@@ -6,11 +6,9 @@ const request = require('request');
 module.exports = (() => {
     class Lookup {
         constructor () {
-            this.updateWNExpectedValues();
+            
 
-            // expected values file doesn't seem to change too often
-            let updateIntervalMinutesInMs = 10 * 60*1000;
-            setTimeout(this.updateWNExpectedValues.bind(this), updateIntervalMinutesInMs);
+            
         }
 
         static get services() {
@@ -192,16 +190,34 @@ module.exports = (() => {
         }
 
         updateWNExpectedValues () {
-            this.getWNExpectedValues()
-            .then((expectedValues) => {
-                let updateTime = new Date(expectedValues.time * 1000);
-                console.log('Updated wows-numbers Expected Values at: ' + expectedValues.time + ' (' + updateTime + ')');
-                this.expectedValues = expectedValues;
-                return;
+            return new Promise((resolve, reject) => {
+                this.getWNExpectedValues()
+                .then((expectedValues) => {
+                    let now = new Date();
+                    let updateTime = new Date(expectedValues.time * 1000);
+                    console.log('[' + now + '] Latest EVs: ' + updateTime + ' (' + expectedValues.time + ')');
+                    this.expectedValues = expectedValues;
+                    return resolve();
+                })
+                .catch((err) => {
+                    console.error(err.message);
+                    return reject(err);
+                });
             })
-            .catch((err) => {
-                console.error(err.message);
-                return;
+        }
+
+        autoUpdateWNEV (intervalDays) {
+            return new Promise((resolve, reject) => {
+                this.updateWNExpectedValues()
+                .then(() => {
+                    // expected values file doesn't seem to change too often
+                    let updateIntervalDaysInMs = intervalDays * 24*60*60*1000;
+                    setTimeout(this.updateWNExpectedValues.bind(this), updateIntervalDaysInMs);
+                    return resolve();
+                })
+                .catch((err) => {
+                    return reject(err);
+                });
             });
         }
     }
