@@ -101,7 +101,7 @@ module.exports = (() => {
             })
         }
 
-        getPvpShipsData (account_id, normalizedServer) {
+        getShipsStats (account_id, normalizedServer) {
             return new Promise((resolve, reject) => {
                 this.apiCall({
                     normalizedServer: normalizedServer,
@@ -111,6 +111,9 @@ module.exports = (() => {
                     }
                 })
                 .then((response) => {
+                    // the ship_id is not stored within the pvp subobject
+                    // to be able to identify the ship later, you need
+                    // to return the array intact
                     let pvpShipsData = response.data[account_id];
                     return resolve(pvpShipsData);
                 })
@@ -143,7 +146,7 @@ module.exports = (() => {
                     }
 
                     clan_id = clanData.clan_id;
-                    
+
                     return this.apiCall({
                         normalizedServer: normalizedServer,
                         endpoint: '/clans/info/',

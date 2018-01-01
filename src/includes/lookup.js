@@ -117,44 +117,28 @@ module.exports = (() => {
             }
         }
 
-        calculatePr (pvpData) {
-            let expectedDamage = 0;
-            let expectedFrags = 0;
-            let expectedWinrate = 0;
+        calculateShipPvpPr (shipData) {
+            // console.log('calculateShipPvpPr');
+            // console.log(shipData.ship_id);
+            let shipEvs = this.expectedValues.data[shipData.ship_id];
+            // console.log(shipEvs);
 
-            let actualDamage = 0;
-            let actualFrags = 0;
-            let actualWinrate = 0;
+            // this must be scaled by its proportion of total battles when calculating overall
+            // see https://wows-numbers.com/personal/rating
 
-            for (let i = 0; i < pvpData.length; i++) {
-                let currentShip = pvpData[i];
-                // console.log('current ship ID: ' + currentShip.ship_id)
+            // the entire shipdata object must be passed in so you can get the ship_id
+            // to look up the expected values
 
-                // console.log('number of battles:')
-                // console.log(currentShip.pvp.battles);
+            // average values are used to not (potentially) trigger integer overflow
+            // like I did when just adding terms * nBattles together
+            // the number of battles played increases without limit (albeit slowly)
+            let actualAvgDamage = shipData.pvp.damage_dealt / shipData.pvp.battles;
+            let actualWinrate = Number(shipData.pvp.wins / shipData.pvp.battles) * 100; // expected winrate is given in percent
+            let actualAvgFrags = shipData.pvp.frags / shipData.pvp.battles;
 
-                if (currentShip.pvp.battles > 0) {
-                    actualDamage += currentShip.pvp.damage_dealt;
-                    actualWinrate += Number(currentShip.pvp.wins / currentShip.pvp.battles) * 100;
-                    actualFrags += currentShip.pvp.frags;
-
-                    // console.log({
-                    //     ship_id: currentShip.ship_id,
-                    //     actualDamage: actualDamage,
-                    //     actualWinrate: actualWinrate,
-                    //     actualFrags: actualFrags,
-                    //     battles: currentShip.pvp.battles
-                    // });
-
-                    expectedDamage += this.expectedValues.data[currentShip.ship_id].average_damage_dealt * currentShip.pvp.battles;
-                    expectedWinrate += this.expectedValues.data[currentShip.ship_id].win_rate;
-                    expectedFrags += this.expectedValues.data[currentShip.ship_id].average_frags * currentShip.pvp.battles;
-                }
-            }
-
-            let rDmg = actualDamage / expectedDamage;
-            let rWins = actualWinrate / expectedWinrate;
-            let rFrags = actualFrags / expectedFrags;
+            let rDmg = actualAvgDamage / shipEvs.average_damage_dealt;
+            let rWins = actualWinrate / shipEvs.win_rate;
+            let rFrags = actualAvgFrags / shipEvs.average_frags;
 
             let nDmg = Math.max(0, (rDmg - 0.4) / (1 - 0.4));
             let nFrags = Math.max(0, (rFrags - 0.1) / (1 - 0.1));
@@ -163,7 +147,44 @@ module.exports = (() => {
             let pr =  700 * nDmg + 300 * nFrags + 150 * nWins;
 
             return pr;
-         
+        }
+
+        calculatePvpPr (pvpData) {
+            let shipPvpPrs = [];
+            let totalBattles = 0;
+
+            for (let i = 0; i < pvpData.length; i++) {
+                let currentShip = pvpData[i];
+                // console.log('current ship:')
+                // console.log(currentShip);
+
+                if (currentShip && currentShip.pvp.battles > 0) {
+                    let shipPvpPr = this.calculateShipPvpPr(currentShip);
+                    
+                    // weird NaN behavior for certain ships
+                    let validPr = !(isNaN(shipPvpPr));
+                    
+                    if (validPr) {
+                        totalBattles += currentShip.pvp.battles;
+                        shipPvpPrs.push({
+                            battles: currentShip.pvp.battles,
+                            pr: shipPvpPr
+                        });
+                    }
+                    // else {
+                    //     throw new Error('ship id ' + currentShip.ship_id + ' pr is NaN');
+                        
+                    // }
+                }
+            }
+
+            let pvpPr = 0;
+
+            for (let i = 0; i < shipPvpPrs.length; i++) {
+                pvpPr += shipPvpPrs[i].pr * (shipPvpPrs[i].battles / totalBattles);
+            }
+
+            return pvpPr;
         }
 
         getClanUrl (clan, normalizedServer, service) {

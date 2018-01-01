@@ -113,9 +113,9 @@ module.exports = (() => {
         replyWithStats (matchingPlayer, normalizedServer, pvpStats) {
             return new Promise((resolve, reject) => {
 
-                this.wg.getPvpShipsData(matchingPlayer.account_id, normalizedServer)
-                .then((pvpShipsData) => {
-                    let pr = lookup.calculatePr(pvpShipsData);
+                this.wg.getShipsStats(matchingPlayer.account_id, normalizedServer)
+                .then((shipsData) => {
+                    let pr = lookup.calculatePvpPr(shipsData);
                     
                     // we have the matched player, basic stats, and PR
                     // now put it all into a message
