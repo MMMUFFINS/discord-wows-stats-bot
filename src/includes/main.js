@@ -36,31 +36,24 @@ module.exports = (() => {
             let args;
             let matchingPlayer;
             let normalizedServer;
+            
+            if (parser.botCalled(message.content)) {
+                let helpRequest = parser.checkHelpMode(message.content);
+                if (helpRequest) {
+                    return this.replyUsage(WarshipsStatsBot.messages.intro);
+                }
 
-            return new Promise((resolve, reject) => {
-                if (parser.botCalled(message.content)) {
-                    let helpRequest = parser.checkHelpMode(message.content);
-    
-                    if (helpRequest) {
-                        return reject(new Error(this.printUsageFriendly()));
-                    }
-    
-                    args = parser.getArgs(message.content);
-                    if (!args) {
-                        return reject(new Error(this.printUsageError()));
-                    } // exit and reply here or something
-                    
-                    // first normalize the server
-                    parser.normalizeServer(args.server)
-                    .catch((err) => {
-                        return Promise.reject(new Error(this.printUsageError()));
-                    })
-                    .then((server) => {
-                        normalizedServer = server;
-    
-                        // then get a matching player and account_id
-                        return this.wg.getMatchingPlayer(args.nickname, normalizedServer);
-                    })
+                args = parser.getArgs(message.content);
+                if (!args) {
+                    return this.replyUsage(WarshipsStatsBot.messages.argError);
+                } // exit and reply here or something
+
+                normalizedServer = parser.normalizeServer(args.server);
+                if (!normalizedServer) return this.replyUsage('Unrecognized server "' + args.server + '".');
+                
+                // args ok, proceed
+                return new Promise((resolve, reject) => {
+                    this.wg.getMatchingPlayer(args.nickname, normalizedServer)
                     .then((match) => {
                         matchingPlayer = match;
                         console.log(matchingPlayer);
@@ -96,18 +89,21 @@ module.exports = (() => {
                         console.error(err);
                         return reject(err);
                     });
+                });
+            }
+            // bot was not called
+        }
+
+        replyUsage(intro) {
+            return new Promise((resolve, reject) => {
+                let reply = '';
+                if (intro) {
+                    reply += intro + '\n';
                 }
-                else return;        // bot was not called
-            });
-        }
-
-
-        printUsageFriendly () {
-            return WarshipsStatsBot.messages.intro + '\n' + WarshipsStatsBot.messages.usage;
-        }
-
-        printUsageError () {
-            return WarshipsStatsBot.messages.argError + '\n' + WarshipsStatsBot.messages.usage;
+    
+                reply += WarshipsStatsBot.messages.usage;
+                return resolve(reply);
+            })
         }
 
         replyWithStats (matchingPlayer, normalizedServer, pvpStats) {

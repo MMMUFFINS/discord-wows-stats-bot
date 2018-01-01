@@ -56,19 +56,17 @@ module.exports = (() => {
         }
 
         normalizeServer (server) {
-            return new Promise((resolve, reject) => {
-                switch (server.toUpperCase()) {
-                    case 'NA':
-                    case 'EU':
-                    case 'RU':
-                    case 'ASIA':
-                        return resolve(server.toUpperCase());
-                    case 'SEA':
-                        return resolve('ASIA');
-                    default:
-                        return reject(new Error('Unrecognized server "' + server +'"'));
-                }
-            });
+            switch (server.toUpperCase()) {
+                case 'NA':
+                case 'EU':
+                case 'RU':
+                case 'ASIA':
+                    return server.toUpperCase();
+                case 'SEA':
+                    return 'ASIA';
+                default:
+                    return null;
+            }
         }
 
         playerOnServer(player, normalizedServer) {
