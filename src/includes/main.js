@@ -140,7 +140,9 @@ module.exports = (() => {
                         reply += '\n' + lookup.getClanUrl(matchingPlayer.clan, normalizedServer, 'wows-numbers');
                     }
                     
-                    return resolve(reply);
+                    let removedFormatting = parser.removeFormatting(reply);
+
+                    return resolve(removedFormatting);
                 })
                 .catch((err) => {
                     return reject(err);

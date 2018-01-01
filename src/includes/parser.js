@@ -70,6 +70,7 @@ module.exports = (() => {
                 }
             });
         }
+
         playerOnServer(player, normalizedServer) {
             let output = '';
 
@@ -79,6 +80,10 @@ module.exports = (() => {
 
             output += player.nickname + ' on ' + normalizedServer;
             return output;
+        }
+
+        removeFormatting (msgTxt) {
+            return msgTxt.replace('_', '\\_');
         }
     }
 
