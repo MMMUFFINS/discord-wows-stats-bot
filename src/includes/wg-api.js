@@ -136,12 +136,14 @@ module.exports = (() => {
                     }
                 })
                 .then((response) => {
-                    clan_id = response.data[account_id].clan_id;
-
-                    if (!clan_id) {
+                    let clanData = response.data[account_id];
+                    
+                    if (!clanData || !clanData.clan_id) {
                         return resolve(null);
                     }
 
+                    clan_id = clanData.clan_id;
+                    
                     return this.apiCall({
                         normalizedServer: normalizedServer,
                         endpoint: '/clans/info/',
