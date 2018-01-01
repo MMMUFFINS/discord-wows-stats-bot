@@ -63,7 +63,8 @@ module.exports = (() => {
                     })
                     .then((match) => {
                         matchingPlayer = match;
-                        
+                        console.log(matchingPlayer);
+
                         // use getAccountInfo to check if their account is private
                         return Promise.all([
                             this.wg.getAccountInfo(matchingPlayer.account_id, normalizedServer),
@@ -92,7 +93,6 @@ module.exports = (() => {
                         return resolve(reply);
                     })
                     .catch((err) => {
-                        if (matchingPlayer) console.log(matchingPlayer);
                         console.error(err);
                         return reject(err);
                     });
