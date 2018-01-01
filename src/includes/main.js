@@ -71,16 +71,11 @@ module.exports = (() => {
                         matchingPlayer.clan = values[1];
 
                         if (accountInfo.hidden_profile === true) {
-                            return Promise.reject(
-                                new Error(
-                                    parser.playerOnServer(matchingPlayer, normalizedServer) + ' is a shitter with a private profile!'
-                                )
-                            );
+                            return this.replyPrivateAcc(matchingPlayer, normalizedServer);
                         }
-                        else {
-                            let pvpStats = lookup.calculateOverallPvpStats(accountInfo.statistics.pvp);
-                            return this.replyWithStats(matchingPlayer, normalizedServer, pvpStats);
-                        }
+
+                        let pvpStats = lookup.calculateOverallPvpStats(accountInfo.statistics.pvp);
+                        return this.replyWithStats(matchingPlayer, normalizedServer, pvpStats);
                     })
                     .then((reply) => {
                         return resolve(reply);
@@ -95,15 +90,17 @@ module.exports = (() => {
         }
 
         replyUsage(intro) {
-            return new Promise((resolve, reject) => {
-                let reply = '';
-                if (intro) {
-                    reply += intro + '\n';
-                }
-    
-                reply += WarshipsStatsBot.messages.usage;
-                return resolve(reply);
-            })
+            let reply = '';
+            if (intro) {
+                reply += intro + '\n';
+            }
+
+            reply += WarshipsStatsBot.messages.usage;
+            return Promise.resolve(reply);
+        }
+
+        replyPrivateAcc (player, normalizedServer) {
+            return Promise.resolve(parser.playerOnServer(player, normalizedServer) + ' is a shitter with a private profile!');
         }
 
         replyWithStats (matchingPlayer, normalizedServer, pvpStats) {
