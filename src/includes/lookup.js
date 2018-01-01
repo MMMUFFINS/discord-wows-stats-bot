@@ -171,10 +171,9 @@ module.exports = (() => {
                             pr: shipPvpPr
                         });
                     }
-                    // else {
-                    //     throw new Error('ship id ' + currentShip.ship_id + ' pr is NaN');
-                        
-                    // }
+                    else {
+                        console.error('ship id ' + currentShip.ship_id + ' pr is NaN');
+                    }
                 }
             }
 
