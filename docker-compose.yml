@@ -1,0 +1,7 @@
+version: '2'
+services:
+  statsbot:
+      build: .
+      image: mmmuffins/discord-wows-stats-bot:1.0.0
+      volumes:
+          - ./secrets.json:/usr/src/app/secrets.json
