@@ -12,11 +12,13 @@ module.exports = (() => {
             return {
                 intro:  'Hi! I\'m the Statsbot! **autism intensifies**\n'
                     +   'I provide the following data:\n'
-                    +   'Battles\nWinrate\nwows-numbers Personal Rating*\nAverage Damage\nLink to their wows-numbers profile\n\n'
-                    +   '*Note: The wows-numbers PR is calculated using their provided formula and the latest data from Wargaming. It may differ from the website by 1 or 2 points due to rounding or more recent data.\n',
+                    +   'Battles\nWinrate\nwows-numbers Personal Rating*\nAverage Damage\nLinks to their wows-numbers profile and clan\n\n'
+                    +   '\\***Note**: PR is calculated using WN\'s formula and the latest data from Wargaming.\n'
+                    +   '- PR may differ from the website by 1 or 2 points due to rounding or more recent data.\n'
+                    +   '- Ships for which WN does not have expected values are **ignored** in calculating PR here.\n',
                 usage:  '**USAGE:**\n'
                     +   '```!stats <nickname> <NA|EU|(SEA|ASIA)|RU>```\n'
-                    +   'The entire command is case-insensitive, eg. `!sTats`, `iSsm`, and `nA` are all valid.\n'
+                    +   'Command is case-insensitive.\n'
                     +   'Example: `!stats vonEtienne EU`\n'
                     +   'To display this help message, type `!stats`\n'
                     +   'To report an issue, go here: https://github.com/MMMUFFINS/discord-wows-stats-bot/issues',
