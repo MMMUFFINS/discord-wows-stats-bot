@@ -89,7 +89,7 @@ module.exports = (() => {
                 });
             }
             // bot was not called
-            else return;
+            else return Promise.resolve(null);
         }
 
         replyUsage(intro) {

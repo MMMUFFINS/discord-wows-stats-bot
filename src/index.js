@@ -42,7 +42,7 @@ client.on('message', message => {
     else {
         statsbot.handleMessage(message)
         .then((reply) => {
-            message.channel.send(reply);
+            if (reply) message.channel.send(reply);
         })
         .catch((err) => {
             message.channel.send(err.message, {
