@@ -33,23 +33,17 @@ client.on('message', message => {
     // ignore bots, including itself! THIS IS IMPORTANT
     if (message.author.bot) return;
     
-    // If the message is "ping"
-    if (message.content === 'hi statsbot!') {
-        // Send "pong" to the same channel
-        message.channel.send('Hello!');
-        return;
-    }
-    else {
-        statsbot.handleMessage(message)
-        .then((reply) => {
-            if (reply) message.channel.send(reply);
-        })
-        .catch((err) => {
-            message.channel.send(err.message, {
-                reply: message.author
-            });
+ 
+    statsbot.handleMessage(message)
+    .then((reply) => {
+        if (reply) message.channel.send(reply);
+    })
+    .catch((err) => {
+        console.error(err);
+        message.channel.send(err.message, {
+            reply: message.author
         });
-    }
+    });
 });
 
 // actual program start

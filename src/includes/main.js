@@ -83,7 +83,6 @@ module.exports = (() => {
                         return resolve(reply);
                     })
                     .catch((err) => {
-                        console.error(err);
                         return reject(err);
                     });
                 });
