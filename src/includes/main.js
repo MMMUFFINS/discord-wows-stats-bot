@@ -11,7 +11,7 @@ module.exports = (() => {
         static get messages() {
             return {
                 intro:  'Hi! I\'m the Statsbot! **autism intensifies**\n'
-                    +   'I provide the following data:\n'
+                    +   'I provide the following **PVP** data:\n'
                     +   'Battles\nWinrate\nwows-numbers Personal Rating*\nAverage Damage\nLinks to their wows-numbers profile and clan\n\n'
                     +   '\\***Note**: PR is calculated using WN\'s formula and the latest data from Wargaming.\n'
                     +   '- PR may differ from the website by 1 or 2 points due to rounding or more recent data.\n'
