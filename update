@@ -1,0 +1,4 @@
+#!/bin/bash
+docker-compose down --rmi all 
+git pull
+docker-compose up -d
