@@ -31,6 +31,12 @@ When the bot is running, type `!stats` to get usage information.
 1. It is recommended to create a new text channel that this bot will have access to. The bot will have a role auto-assigned to it based on the bot name that you gave it earlier. You can then set the permissions on that role on the channel.
 1. Turn off all link embeds in that channel and for the bot because it prints URLs to player and clan profiles.
 
+Permissions required:
+
+* Read messages
+* Send messages
+* Manage messages
+
 ## Run
 
 Detached mode (kill with `docker-compose down`):

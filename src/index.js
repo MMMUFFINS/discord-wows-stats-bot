@@ -36,7 +36,12 @@ client.on('message', message => {
  
     statsbot.handleMessage(message)
     .then((reply) => {
-        if (reply) message.channel.send(reply);
+        if (reply) {
+            message.channel.send(reply)
+            .then((newMsg) => {
+                message.delete();
+            })
+        };
     })
     .catch((err) => {
         console.error(err);
