@@ -80,6 +80,7 @@ module.exports = (() => {
                         return this.replyWithStats(matchingPlayer, normalizedServer, pvpStats);
                     })
                     .then((reply) => {
+                        message.delete();
                         return resolve(reply);
                     })
                     .catch((err) => {

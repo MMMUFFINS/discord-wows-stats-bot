@@ -38,9 +38,6 @@ client.on('message', message => {
     .then((reply) => {
         if (reply) {
             message.channel.send(reply)
-            .then((newMsg) => {
-                message.delete();
-            })
         };
     })
     .catch((err) => {
