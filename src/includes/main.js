@@ -42,6 +42,7 @@ module.exports = (() => {
             if (parser.botCalled(message.content)) {
                 let helpRequest = parser.checkHelpMode(message.content);
                 if (helpRequest) {
+                    message.delete();
                     return this.replyUsage(WarshipsStatsBot.messages.intro);
                 }
 
