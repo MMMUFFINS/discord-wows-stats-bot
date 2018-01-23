@@ -1,7 +1,7 @@
 {
   "name": "discord-wows-stats-bot",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.4",
+  "description": "Simple bot to lookup player stats for World of Warships.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
