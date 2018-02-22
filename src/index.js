@@ -48,6 +48,8 @@ client.on('message', message => {
     });
 });
 
+client.on('error', console.error)
+
 // actual program start
 statsbot.initWNEVAutoupdate()
 .then(() => {
