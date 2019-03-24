@@ -120,12 +120,15 @@ module.exports = (() => {
         calculateShipPvpPr (shipData) {
             // console.log('calculateShipPvpPr');
             // console.log(shipData.ship_id);
-            // let shipEvs = this.expectedValues.data[shipData.ship_id];
-            let shipEvs = this.expectedValues.data["000"];
-            
+
+            let shipEvs = this.expectedValues[shipData.ship_id];
 
             if (!shipEvs) {
-                throw('No EVs found for ship ID ' + shipData.ship_id + '. Try updating the EV files or rebooting the server.');
+                throw(new Error('No EVs found for ship ID ' + shipData.ship_id + '. Try updating the EV files or rebooting the server.'));
+            }
+
+            if (typeof shipEvs !== 'object') {
+                throw(new Error('No EVs found for ship ID ' + shipData.ship_id + '. The ship may be in testing phase.'));
             }
             // console.log(shipEvs);
 
@@ -158,6 +161,10 @@ module.exports = (() => {
         calculatePvpPr (pvpData) {
             let shipPvpPrs = [];
             let totalBattles = 0;
+            
+            if (!pvpData) {
+                throw(new Error('Cannot read PvP data from Wargaming for this account. Go yell at the bot author.'));
+            }
 
             for (let i = 0; i < pvpData.length; i++) {
                 let currentShip = pvpData[i];
@@ -165,10 +172,19 @@ module.exports = (() => {
                 // console.log(currentShip);
 
                 if (currentShip && currentShip.pvp.battles > 0) {
-                    let shipPvpPr = this.calculateShipPvpPr(currentShip);
+                    let validPr;
+                    let shipPvpPr;
+
+                    try {
+                        shipPvpPr = this.calculateShipPvpPr(currentShip);
+                    } catch (err) {
+                        console.error(err);
+                        validPr = NaN;
+                    } finally {
+                        validPr = !(isNaN(shipPvpPr));
+                    }
                     
-                    // weird NaN behavior for certain ships
-                    let validPr = !(isNaN(shipPvpPr));
+                    // NaN usually results from test ships
                     
                     if (validPr) {
                         totalBattles += currentShip.pvp.battles;
@@ -222,7 +238,7 @@ module.exports = (() => {
                     let now = new Date();
                     let updateTime = new Date(expectedValues.time * 1000);
                     console.log('[' + now + '] Latest EVs: ' + updateTime + ' (' + expectedValues.time + ')');
-                    this.expectedValues = expectedValues;
+                    this.expectedValues = expectedValues["data"];
                     return resolve();
                 })
                 .catch((err) => {

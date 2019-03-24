@@ -112,8 +112,13 @@ module.exports = (() => {
 
                 this.wg.getShipsStats(matchingPlayer.account_id, normalizedServer)
                 .then((shipsData) => {
-                    let pr = lookup.calculatePvpPr(shipsData);
-                    
+                    let pr;
+                    try {
+                        pr = lookup.calculatePvpPr(shipsData);
+                    } catch (err) {
+                        return reject(err);
+                    }
+
                     // we have the matched player, basic stats, and PR
                     // now put it all into a message
                     let profileUrl = lookup.getProfileUrl(matchingPlayer, normalizedServer, 'wows-numbers');
@@ -142,6 +147,7 @@ module.exports = (() => {
                     return resolve(removedFormatting);
                 })
                 .catch((err) => {
+                    console.log('replyWithStats catch')
                     return reject(err);
                 });
             });
