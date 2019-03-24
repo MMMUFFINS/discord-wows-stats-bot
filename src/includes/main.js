@@ -104,7 +104,7 @@ module.exports = (() => {
         }
 
         replyPrivateAcc (player, normalizedServer) {
-            return Promise.resolve(parser.playerOnServer(player, normalizedServer) + ' is a shitter with a private profile!');
+            return Promise.resolve(parser.playerOnServer(player, normalizedServer) + ' has a private profile!');
         }
 
         replyWithStats (matchingPlayer, normalizedServer, pvpStats) {

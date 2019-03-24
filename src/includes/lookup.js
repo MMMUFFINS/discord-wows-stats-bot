@@ -120,7 +120,13 @@ module.exports = (() => {
         calculateShipPvpPr (shipData) {
             // console.log('calculateShipPvpPr');
             // console.log(shipData.ship_id);
-            let shipEvs = this.expectedValues.data[shipData.ship_id];
+            // let shipEvs = this.expectedValues.data[shipData.ship_id];
+            let shipEvs = this.expectedValues.data["000"];
+            
+
+            if (!shipEvs) {
+                throw('No EVs found for ship ID ' + shipData.ship_id + '. Try updating the EV files or rebooting the server.');
+            }
             // console.log(shipEvs);
 
             // this must be scaled by its proportion of total battles when calculating overall
