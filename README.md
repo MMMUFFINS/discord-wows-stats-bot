@@ -26,7 +26,10 @@ When the bot is running, type `!stats` to get usage information.
 
 ### Add Bot to Server
 
-1. On the Discord developer's page, generate an OAuth invite URL for your bot. The only permissions it needs is to view and send messages. 
+1. On the Discord developer's page, generate an OAuth invite URL for your bot. The only permissions it needs are:
+  * View messages
+  * Send messages
+  * Manage messages (deletes user commands if command is successful)
 1. Copy and paste the URL in another tab to add the bot to one of your Discord servers.
 1. It is recommended to create a new text channel that this bot will have access to. The bot will have a role auto-assigned to it based on the bot name that you gave it earlier. You can then set the permissions on that role on the channel.
 1. Turn off all link embeds in that channel and for the bot because it prints URLs to player and clan profiles.
